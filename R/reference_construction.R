@@ -54,8 +54,8 @@
 #' phenodata_list <- c(phenopath1,phenopath2)
 #'
 #' ## Register backend for parallel processing
-#' #doFuture::registerDoFuture()
-#' #future::plan("multisession", workers = 4)
+#' #registerDoFuture()
+#' #plan("multisession", workers = 4)
 #'
 #' ## construct integrated reference data
 #' refdata <- construct_ref(ref_list = ref_list,
@@ -125,7 +125,6 @@ construct_ref <- function(
     if (verbose) message("Running harmony")
     merge_data <- harmony::RunHarmony(
       object = merge_data,
-      assay.use = "SCT",
       reduction.use = "pca",
       dims.use = 1:30,
       group.by.vars = group_var,

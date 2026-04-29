@@ -86,8 +86,8 @@ phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
 phenodata_list <- c(phenopath1,phenopath2)
 
 ## Register backend for parallel processing
-#doFuture::registerDoFuture()
-#future::plan("multisession", workers = 4)
+#registerDoFuture()
+#plan("multisession", workers = 4)
 
 ## construct integrated reference data
 refdata <- construct_ref(ref_list = ref_list,

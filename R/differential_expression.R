@@ -27,7 +27,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
 #'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 #' phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
@@ -51,14 +51,14 @@
 #' prop1 <- data.frame(celltypes = unique(refdata$celltype),
 #'                    proportion = rep(0.125, 8))
 #' ## simulate 20 bulk samples based on specified cell type proportion
-#' bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#' bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                             phenodata = phenodata,
 #'                             num_mixtures = 20,
 #'                             prop = prop1, replace = TRUE)
 #' ## generate another vector with high proportion for a certian cell type
 #' prop2 <- data.frame(celltypes = unique(refdata$celltype),
 #'                     proportion = c(0.8, 0.1, 0.1, rep(0, 5)))
-#' bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#' bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                             phenodata = phenodata,
 #'                             num_mixtures = 20,
 #'                             prop = prop2, replace = TRUE)
@@ -70,10 +70,9 @@
 #' colnames(bulk) <- paste0("sample", 1:ncol(bulk))
 #' ## predict cell type proportions using "OLS" algorithm
 #' decon_res <- scdecon(bulk = bulk,
-#'                      ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                      ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                      phenodata = phenodata,
 #'                      filter_ref = TRUE,
-#'                      decon_method = "OLS",
 #'                      norm_method_sc = "LogNormalize",
 #'                      norm_method_bulk = "TMM",
 #'                      trans_method_sc = "none",
@@ -82,6 +81,7 @@
 #' ## create sampleinfo
 #' sampleinfo <- data.frame(condition = rep(c("group1", "group2"), each =20))
 #' row.names(sampleinfo) <- colnames(bulk)
+#' library(DESeq2)
 #' deres <- run_de(bulk = bulk,
 #'                prop = decon_res[[1]],
 #'                sampleinfo = sampleinfo,
@@ -104,11 +104,11 @@
 #'                    fc_cutoff = 1.5,
 #'                    pval_cutoff = 0.05,
 #'                    pvalflag = TRUE,
-#'                    interactive = FALSE)
+#'                    interactive = T)
 #'
 #' ## generate cell-type specific gene expression
 #' ct_exprs_list <- celltype_expression(bulk = bulk,
-#'                                      ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                                      ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                                      phenodata = phenodata,
 #'                                      prop = decon_res[[1]],
 #'                                      UMI_min = 0,
@@ -169,12 +169,9 @@ run_de <- function(
 #' @param pvalflag a logical value indicating whether to use adjusted p value in selecting differential expressed genes.
 #' @param interactive a logical value indicating whether to generate an interactive plot.
 #'
-#' @return a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
-#' 
 #' @details See examples from \code{\link{run_de}}.
-#' 
 #' @export
-#' 
+#'
 #'
 
 comparedeg_scatter <- function(
@@ -207,16 +204,14 @@ comparedeg_scatter <- function(
     )
     results_combined$category <- factor(results_combined$category, levels = color_df$group[color_df$group %in% unique(results_combined$category)])
     lim_values <- range(results_combined[, c("log2foldchange.x", "log2foldchange.y")], na.rm = TRUE)
-    #options(warn = -1)
     gp <- ggplot() +
         geom_point(aes(x = log2foldchange.x, y = log2foldchange.y, color = category, text = paste0("GeneSymbol: ", genename)), size = 5, data = results_combined) +
         theme_classic() + labs(x= result_names[1], y = result_names[2]) +
         scale_color_manual(values = color_df$colors[color_df$group %in% unique(results_combined$category)]) +
-        lims(x = lim_values, y = lim_values) +
+        coord_cartesian(xlim = lim_values, ylim = lim_values) +
         geom_hline(yintercept = c(log2(fc_cutoff), -log2(fc_cutoff)), linetype = 2) +
         geom_vline(xintercept = c(log2(fc_cutoff), -log2(fc_cutoff)), linetype = 2) +
         geom_abline(slope = 1, intercept = 0)
-    #options(warn = 0)
     if (interactive) {
         return(plotly::ggplotly(gp))
     } else {

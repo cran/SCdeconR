@@ -54,7 +54,7 @@
 #'                         subjectid = refdata$subjectid)
 #' prop <- data.frame(celltypes = unique(refdata$celltype), 
 #' proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))
-#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                            phenodata = phenodata,
 #'                            num_mixtures = 20,
 #'                            prop = prop,
@@ -202,8 +202,8 @@ bulk_generator <- function(
 #'                         celltypes = refdata$celltype,
 #'                         subjectid = refdata$subjectid)
 #' prop <- data.frame(celltypes = unique(refdata$celltype), 
-#' proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))                        
-#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#' proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))   
+#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                            phenodata = phenodata,
 #'                            num_mixtures = 20,
 #'                            prop = prop,
@@ -211,7 +211,7 @@ bulk_generator <- function(
 #'
 #' ## perform deconvolution based on "OLS" algorithm
 #' decon_res <- scdecon(bulk = bulk_sim[[1]],
-#'                      ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                      ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                      phenodata = phenodata,
 #'                      filter_ref = TRUE,
 #'                      decon_method = "OLS",

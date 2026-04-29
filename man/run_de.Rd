@@ -50,7 +50,7 @@ To perform ANOVA like analysis (differences between any groups), set \code{contr
 edgeR, limma_voom or limma. DESeq2 does not provide direct support for this type of comparison.
 }
 \examples{
-\donttest{
+\dontrun{
 ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
@@ -74,14 +74,14 @@ phenodata <- data.frame(cellid = colnames(refdata),
 prop1 <- data.frame(celltypes = unique(refdata$celltype),
                    proportion = rep(0.125, 8))
 ## simulate 20 bulk samples based on specified cell type proportion
-bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                             phenodata = phenodata,
                             num_mixtures = 20,
                             prop = prop1, replace = TRUE)
 ## generate another vector with high proportion for a certian cell type
 prop2 <- data.frame(celltypes = unique(refdata$celltype),
                     proportion = c(0.8, 0.1, 0.1, rep(0, 5)))
-bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                             phenodata = phenodata,
                             num_mixtures = 20,
                             prop = prop2, replace = TRUE)
@@ -93,10 +93,9 @@ bulk <- round(bulk_sim[[1]], digits=0)
 colnames(bulk) <- paste0("sample", 1:ncol(bulk))
 ## predict cell type proportions using "OLS" algorithm
 decon_res <- scdecon(bulk = bulk,
-                     ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                     ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                      phenodata = phenodata,
                      filter_ref = TRUE,
-                     decon_method = "OLS",
                      norm_method_sc = "LogNormalize",
                      norm_method_bulk = "TMM",
                      trans_method_sc = "none",
@@ -105,6 +104,7 @@ decon_res <- scdecon(bulk = bulk,
 ## create sampleinfo
 sampleinfo <- data.frame(condition = rep(c("group1", "group2"), each =20))
 row.names(sampleinfo) <- colnames(bulk)
+library(DESeq2)
 deres <- run_de(bulk = bulk,
                prop = decon_res[[1]],
                sampleinfo = sampleinfo,
@@ -127,11 +127,11 @@ comparedeg_scatter(results1 = deres[[2]],
                    fc_cutoff = 1.5,
                    pval_cutoff = 0.05,
                    pvalflag = TRUE,
-                   interactive = FALSE)
+                   interactive = T)
 
 ## generate cell-type specific gene expression
 ct_exprs_list <- celltype_expression(bulk = bulk,
-                                     ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                                     ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                                      phenodata = phenodata,
                                      prop = decon_res[[1]],
                                      UMI_min = 0,

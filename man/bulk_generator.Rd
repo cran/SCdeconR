@@ -76,7 +76,7 @@ phenodata <- data.frame(cellid = colnames(refdata),
                         subjectid = refdata$subjectid)
 prop <- data.frame(celltypes = unique(refdata$celltype), 
 proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))
-bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+bulk_sim <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                            phenodata = phenodata,
                            num_mixtures = 20,
                            prop = prop,

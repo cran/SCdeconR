@@ -91,7 +91,7 @@ effect of cell type removal from reference.}
 \item{ffpe_artifacts}{logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 evaluating the effect of FFPE artifacts.}
 
-\item{model}{pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR/blob/master/data/ffpemodel.rda.}
+\item{model}{pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR_files/blob/master/data/ffpemodel.rda.}
 
 \item{prop}{a matrix or data.frame of simulated cell proportion values with rows representing cell types, columns representing samples. Only applicable to simulation
 experiments in evaluating the effect of cell type removal from reference.}
@@ -172,7 +172,7 @@ marker_strategy should be one of the following:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
@@ -193,18 +193,14 @@ refdata <- construct_ref(ref_list = ref_list,
 phenodata <- data.frame(cellid = colnames(refdata),
                         celltypes = refdata$celltype,
                         subjectid = refdata$subjectid)
-                        
-prop <- data.frame(celltypes = unique(refdata$celltype), 
-proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))
-bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+bulk_sim <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                            phenodata = phenodata,
                            num_mixtures = 20,
-                           prop = prop,
                            num_mixtures_sprop = 1)
 
 ## perform deconvolution based on "OLS" algorithm
 decon_res <- scdecon(bulk = bulk_sim[[1]],
-                     ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                     ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
                      phenodata = phenodata,
                      filter_ref = TRUE,
                      decon_method = "OLS",

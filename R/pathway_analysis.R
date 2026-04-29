@@ -80,7 +80,7 @@ prepare_rnk <- function(teststats, outputfile, replace = FALSE){
 #' @param pval_cutoff p value cutoff to identify enriched gene-sets.
 #' @param pvalflag a logical value indicating whether to use adjusted p value in selecting enriched gene-sets. Default to TRUE.
 #' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE.
-#' 
+#'
 #' @return a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
 #'
 #' @export
@@ -119,16 +119,14 @@ comparegsea_scatter <- function(
     )
     gseares3$category <- factor(gseares3$category, levels = color_df$group[color_df$group %in% unique(gseares3$category)])
     lim_values <- range(gseares3[, c("NES.x", "NES.y")], na.rm = TRUE)
-    #options(warn = -1)
     gp <- ggplot() +
         geom_point(aes(x = NES.x, y = NES.y, color = category, text = paste0("Geneset: ", NAME)), size = 5, data = gseares3) +
         theme_classic() + labs(x = result_names[1], y = result_names[2]) +
         scale_color_manual(values = color_df$colors[color_df$group %in% unique(gseares3$category)]) +
-        lims(x = lim_values, y = lim_values) +
+        coord_cartesian(xlim = lim_values, ylim = lim_values) +
         geom_hline(yintercept = c(log2(nes_cutoff), -log2(nes_cutoff)), linetype = 2) +
         geom_vline(xintercept = c(log2(nes_cutoff), -log2(nes_cutoff)), linetype = 2) +
         geom_abline(slope = 1, intercept = 0)
-    #options(warn = 0)
     if (interactive) {
         return(plotly::ggplotly(gp))
     } else {
@@ -147,7 +145,7 @@ comparegsea_scatter <- function(
 #' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE.
 #'
 #' @export
-#'@return a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
+#'
 #' @details this function does not support output from GSEA \href{https://github.com/GSEA-MSigDB/GSEA_R}{R implementation}
 
 
@@ -170,7 +168,6 @@ gsea_sumplot <- function(
   tmp <- rbind(gseares_up, gseares_down)
   tmp$NAME <- gsub("_", " ", tmp$NAME)
   if(pvalflag) pval <- "FDR.q.val" else pval <- "NOM.p.val"
-  #options(warn = -1)
   gp <- ggplot(tmp, aes(NES, NAME)) +
     geom_point(aes(colour = get(pval), size = SIZE)) + labs(colour = pval) +
     scale_color_gradientn(colours=rainbow(4), limits=c(0, 1)) +
@@ -180,7 +177,6 @@ gsea_sumplot <- function(
           panel.grid.minor = element_line(size = 0.25,linetype = "solid", colour = "gray90"),
           axis.title.y = element_blank()) +
     scale_y_discrete(limits = rev(tmp$NAME))
-  #options(warn = 0)
   if(interactive) return(plotly::ggplotly(gp)) else return(gp)
 }
 
@@ -343,7 +339,7 @@ gsea_rwplot <- function(gseares_path, gsname, class_name, metric_range = NULL) {
   ## Create GSEA plot
   # Save default for resetting
   def_par <- par(no.readonly = TRUE)
-  on.exit(par(def_par))
+
   # Create a division of the device
   gsea_layout <- layout(matrix(c(1, 2, 3, 4)), heights = c(1.7, 0.5, 0.2, 2))
 
@@ -412,4 +408,5 @@ gsea_rwplot <- function(gseares_path, gsname, class_name, metric_range = NULL) {
           ylab = ifelse(gsea_metric == "None", "Ranking metric", gsea_metric), space = 0, add = TRUE)
   box()
   # Reset to default
+  on.exit(par(def_par))
 }

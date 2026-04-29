@@ -23,9 +23,6 @@ gsea_sumplot(
 
 \item{interactive}{a logical value indicating whether to generate an interactive plot. Default to FALSE.}
 }
-\value{
-a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
-}
 \description{
 Summary plot of selected up/down regulated gene-sets for gene set enrichment analysis.
 }

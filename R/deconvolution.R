@@ -41,7 +41,7 @@
 #' effect of cell type removal from reference.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 #' evaluating the effect of FFPE artifacts.
-#' @param model pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR/blob/master/data/ffpemodel.rda.
+#' @param model pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR_files/blob/master/data/ffpemodel.rda.
 #' @param prop a matrix or data.frame of simulated cell proportion values with rows representing cell types, columns representing samples. Only applicable to simulation
 #' experiments in evaluating the effect of cell type removal from reference.
 #' @param cibersortpath full path to CIBERSORT.R script.
@@ -109,7 +109,7 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
 #'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 #' phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
@@ -130,18 +130,14 @@
 #' phenodata <- data.frame(cellid = colnames(refdata),
 #'                         celltypes = refdata$celltype,
 #'                         subjectid = refdata$subjectid)
-#'                         
-#' prop <- data.frame(celltypes = unique(refdata$celltype), 
-#' proportion = rep(1/length(unique(refdata$celltype)), length(unique(refdata$celltype))))
-#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                            phenodata = phenodata,
 #'                            num_mixtures = 20,
-#'                            prop = prop,
 #'                            num_mixtures_sprop = 1)
 #'
 #' ## perform deconvolution based on "OLS" algorithm
 #' decon_res <- scdecon(bulk = bulk_sim[[1]],
-#'                      ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                      ref = GetAssayData(refdata, layer = "data", assay = "SCT"),
 #'                      phenodata = phenodata,
 #'                      filter_ref = TRUE,
 #'                      decon_method = "OLS",
@@ -200,8 +196,8 @@ scdecon <- function(
       pythonpath <- reticulate::py_config()$python
     } else if(is.null(pythonpath) && (!reticulate::py_available())) stop("pythonpath not specified, and python cannot be found via py_available()")
     reticulate::use_python(pythonpath)
-    if(!reticulate::py_module_available("scaden")) stop("scaden not installed. You can install scaden via pip or conda. See installation page for details")
-    if(!reticulate::py_module_available("TAPE")) stop("scTAPE not installed. You can install scTAPE via pip or conda. See installation page for details")
+    if(decon_method == "scaden" && (!reticulate::py_module_available("scaden"))) stop("scaden not installed. You can install scaden via pip or conda. See installation page for details")
+    if(decon_method == "scTAPE" && (!reticulate::py_module_available("TAPE"))) stop("scTAPE not installed. You can install scTAPE via pip or conda. See installation page for details")
   }
   if( decon_method == "CIBERSORT" && (is.null(cibersortpath) || (!file.exists(cibersortpath)))) stop("cibersortpath not provided.")
   if (ncol(phenodata) < 3) stop("phenodata should contain at least the first three columns: cellid, celltype and subjectid.")
@@ -341,9 +337,6 @@ scdecon <- function(
 #' @param prop a matrix or data.frame of cell proportion values with rows representing cell types, columns representing samples.
 #' @param sort a logical value indicating whether to sort the samples based on cell type with highest median cell proportion across samples. Default to TRUE.
 #' @param interactive a logical value indicating whether to generate interactive plot. Default to FALSE.
-#' 
-#' @return a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
-#' 
 #' @export
 #'
 
@@ -463,7 +456,9 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     }))
   } else if (decon_method == "scaden") {
     if(is.null(tmpdir)) {
-      stop("tmpdir not supplied.")
+      warning("tmpdir not supplied. Creating tmpdir in current working directory.")
+      tmpdir <- paste0(getwd(), "/tmpdir/")
+      dir.create(tmpdir)
     } else if(!dir.exists(tmpdir)) stop("tmpdir does not exist")
     else if(length(list.files(tmpdir)) > 0) stop("tmpdir exists, but is not empty.")
     cwd <- getwd()
@@ -482,7 +477,9 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     if(remove_tmpdir) system(paste0("rm -rf ", tmpdir))
   } else if(decon_method == "scTAPE"){
     if(is.null(tmpdir)) {
-      stop("tmpdir not supplied.")
+      warning("tmpdir not supplied. Creating tmpdir in current working directory.")
+      tmpdir <- paste0(getwd(), "/tmpdir/")
+      dir.create(tmpdir)
     } else if(!dir.exists(tmpdir)) stop("tmpdir does not exist")
     else if(length(list.files(tmpdir)) > 0) stop("tmpdir exists, but is not empty.")
     cwd <- getwd()

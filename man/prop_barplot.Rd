@@ -13,9 +13,6 @@ prop_barplot(prop, sort = TRUE, interactive = FALSE)
 
 \item{interactive}{a logical value indicating whether to generate interactive plot. Default to FALSE.}
 }
-\value{
-a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
-}
 \description{
 Bar plot of cell type proportions across samples
 }

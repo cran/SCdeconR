@@ -30,9 +30,6 @@ comparedeg_scatter(
 
 \item{interactive}{a logical value indicating whether to generate an interactive plot.}
 }
-\value{
-a \code{ggplot} object or \code{plotly} object if interactive is set to TRUE
-}
 \description{
 Generate a scatter plot of fold changes comparing two differential expression results, e.g. w/wo adjusting for cell proportion differences.
 }
